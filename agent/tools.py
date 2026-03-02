@@ -1,6 +1,7 @@
 from langchain_core.tools import tool
 import requests
 from rag.rag_service import RAGService
+from datetime import datetime
 
 rag_service = RAGService()
 
@@ -70,7 +71,7 @@ def weather_tool(city: str) -> str:
         weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
         weather_resp = requests.get(weather_url, timeout=5).json()
 
-        # 4. 解析天气数据
+        # 解析天气数据
         current = weather_resp.get("current_weather", {})
         temp = current.get("temperature", "未知")
         weather_code = current.get("weathercode", -1)
@@ -89,6 +90,16 @@ def weather_tool(city: str) -> str:
     except Exception as e:
         print(f"[Tool Error] 天气查询异常: {e}")
         return f"我脑子短路了，查不了{clean_city}的天气。"
+
+@tool(description="""
+【时间查询工具】
+当用户的提问中包含“今天”、“明天”、“昨天”、“现在”、“最近”等相对时间概念时，你【必须】先调用此工具获取当前的基准日期和时间！
+-> 无需传入参数（如果框架要求传参，传空字符串 "" 即可）。
+""")
+def get_current_datetime(query: str = "") -> str:
+    """获取当前日期和时间的工具"""
+    now = datetime.now()
+    return f"现在的标准时间是：{now.strftime('%Y-%m-%d %H:%M:%S')}"
 
 if __name__ == '__main__':
     print(weather_tool.invoke("北京"))

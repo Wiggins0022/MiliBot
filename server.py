@@ -4,24 +4,15 @@ import uvicorn
 import time
 import asyncio
 
-# ==========================================
-# 1. 导入你写好的 主智能体 (Agent)
-# 注意：请确保导入路径和你的实际文件名一致！
-# ==========================================
-from agent.react_agent import ReactAgent  # 假设你的 Agent 写在这个文件里
+from agent.react_agent import ReactAgent
 
-print("🚀 正在初始化主智能体 (Agent)，请稍候...")
 my_agent = ReactAgent()
-print("✅ 主智能体加载完毕！")
+print("智能体加载完毕！")
 
 # 创建 FastAPI 应用
 app = FastAPI(title="MiliBot Agent API", version="2.0")
 
 
-# ==========================================
-# 补充接口：伪装 OpenAI 的模型列表 (菜单)
-# 防止 AstrBot 连接时报 404 错误
-# ==========================================
 @app.get("/v1/models")
 async def list_models():
     return {
@@ -65,14 +56,9 @@ async def chat_completions(request: Request):
 
     print(f"\n[收到 AstrBot 请求] 用户最新问题: {latest_query}")
 
-    # ==========================================
-    # 💡 核心修改：调用 Agent 引擎，获取最终回复
-    # ==========================================
     def run_agent_sync():
         """
-        同步运行你的 Agent stream。
-        因为你的 create_stream 会 yield 很多次，
-        我们只需要不断覆盖变量，最后保留下来的就是 Agent 的最终发言。
+        同步运行Agent stream。
         """
         final_reply = ""
         # 调用你写好的 create_stream 方法
@@ -81,10 +67,8 @@ async def chat_completions(request: Request):
         return final_reply.strip()
 
     try:
-        # 丢进后台线程执行，绝对不卡死 FastAPI 的网络监听！
         bot_reply = await asyncio.to_thread(run_agent_sync)
 
-        # 万一 Agent 抽风啥也没返回，做个兜底
         if not bot_reply:
             bot_reply = "666，主板烧了，你刚才说什么？"
 
@@ -94,9 +78,6 @@ async def chat_completions(request: Request):
         print(f"[报错] Agent 调用失败: {e}")
         bot_reply = f"米粒脑子短路了，后台报错：{str(e)}"
 
-    # ==========================================
-    # 打包成标准的 OpenAI 格式返回给 AstrBot
-    # ==========================================
     return JSONResponse({
         "id": "chatcmpl-" + str(int(time.time())),
         "object": "chat.completion",
@@ -116,5 +97,4 @@ async def chat_completions(request: Request):
 
 
 if __name__ == "__main__":
-    print("🌟 启动 FastAPI 服务器...")
     uvicorn.run(app, host="127.0.0.1", port=8000)

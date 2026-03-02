@@ -1,0 +1,5 @@
+2026-03-02 21:30:05,971 - agent_logger - INFO -load_prompts.py:83 - 【load_rag_prompt】成功加载RAG提示词: E:\PythonProject\laybot\prompts/rag_prompt.txt
+2026-03-02 21:30:05,972 - agent_logger - INFO -load_prompts.py:56 - 【load_person_info】成功加载群成员信息: E:\PythonProject\laybot\prompts/person_info.txt
+2026-03-02 21:31:56,227 - agent_logger - INFO -load_prompts.py:83 - 【load_rag_prompt】成功加载RAG提示词: E:\PythonProject\laybot\prompts/rag_prompt.txt
+2026-03-02 21:31:56,228 - agent_logger - INFO -load_prompts.py:56 - 【load_person_info】成功加载群成员信息: E:\PythonProject\laybot\prompts/person_info.txt
+2026-03-02 21:31:56,242 - agent_logger - INFO -load_prompts.py:29 - 【load_main_prompt】成功加载主提示词: E:\PythonProject\laybot\prompts/main_agent_prompt.txt

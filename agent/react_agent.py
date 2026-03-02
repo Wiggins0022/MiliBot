@@ -1,12 +1,14 @@
 from langchain.agents import create_agent
 from model.chat_model import chat_model
 from agent.tools import chat_with_memory_tool,weather_tool
+from utils.load_prompts import load_main_prompt
 
 class ReactAgent:
     def __init__(self):
         self.agent = create_agent(
             model=chat_model,
-            tools=[chat_with_memory_tool,weather_tool]
+            tools=[chat_with_memory_tool,weather_tool],
+            system_prompt=load_main_prompt()
         )
 
     def create_stream(self, query: str):
