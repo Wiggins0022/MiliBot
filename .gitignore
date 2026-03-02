@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local/Private data
+data/*.json
+data/*.jsonl
+chroma_db/
+rag/chroma_db/
+agent/logs/
+prompts/person_info.txt
+resources/user_config.properties
+
+# IDE
+.idea/

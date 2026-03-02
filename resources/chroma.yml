@@ -1,0 +1,3 @@
+collection_name: agent_project
+persist_directory: chroma_db
+search_k: 3

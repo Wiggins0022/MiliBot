@@ -1,0 +1,3 @@
+main_agent_prompt_path: prompts/main_agent_prompt.txt
+person_info_prompt_path: prompts/person_info.txt
+rag_prompt_path: prompts/rag_prompt.txt
