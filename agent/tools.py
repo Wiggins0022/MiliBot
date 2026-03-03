@@ -10,14 +10,15 @@ rag_service = RAGService()
 当用户和你进行日常闲聊、对喷、打招呼、提问，或者抛出任何不属于查询天气和生成报告的话题时，你【必须】调用此工具。
 此工具会直接返回一句已经模仿好“米粒”性格的最终回复。
 -> 传入参数：请直接将用户的原话作为 query 传入。
+-> 传入参数 sender：当前和你说话的群友名字（你可以从当前任务上下文中获取）
 """)
-def chat_with_memory_tool(query: str):
+def chat_with_memory_tool(query: str, sender: str) -> str:
     """
     使用带有记忆功能的工具进行聊天
     :param query: 用户输入的查询字符串
     :return: 模型生成的回复字符串
     """
-    return rag_service.rag_answer(query)
+    return rag_service.rag_answer(query,sender)
 
 @tool(description="获取天气信息，输入一个地点名称，返回该地点的天气信息")
 def weather_tool(query: str):

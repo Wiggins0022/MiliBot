@@ -44,7 +44,7 @@ class RAGService:
             context += f"文档{counter}：提问：{doc.page_content} 回答：{doc.metadata}\n"
         return context
 
-    def rag_answer(self, query: str) -> str:
+    def rag_answer(self, query: str,targer_sender: str = None) -> str:
         """
         让模型查询知识库并生成回答
         :param query:
@@ -53,8 +53,13 @@ class RAGService:
         relative_docs = self.retrieve_relevant_docs(query)
         context = self.get_context_from_docs(relative_docs)
 
-        # TODO: 这里以后替换成从文件读取最近5条记录的逻辑
-        recent_history_str = "暂无近期记录"
+        from server import history_db
+        recent_history_str = history_db.get_recent_history(target_user=targer_sender, limit=5)
+
+        if not recent_history_str.strip():
+            recent_history_str = "暂无近期聊天记录。"
+
+        print(f"最近的聊天记录：\n{recent_history_str}")
 
         return self.chain.invoke(input={
             "user_input": query,

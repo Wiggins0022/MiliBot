@@ -11,10 +11,12 @@ class ReactAgent:
             system_prompt=load_main_prompt()
         )
 
-    def create_stream(self, query: str):
+    def create_stream(self, query: str, sender: str):
+        prompt_with_sender = f"【{sender} 正在和你说话】：\n{query}"
+
         input_dict = {
             "messages": [
-                {"role": "user", "content": query}
+                {"role": "user", "content": prompt_with_sender}
             ]
         }
 
