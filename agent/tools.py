@@ -56,16 +56,16 @@ def weather_tool(city: str) -> str:
         print(f"[Tool Calling] 正在查询 {clean_city} 的经纬度...")
 
         # # 把城市名转成经纬度
-        # geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={clean_city}&count=1&language=zh"
-        # geo_resp = requests.get(geo_url, timeout=5).json()
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={clean_city}&count=1&language=zh"
+        geo_resp = requests.get(geo_url, timeout=5).json()
 
-        # if "results" not in geo_resp or len(geo_resp["results"]) == 0:
-        #     return f"地理盲区啊，根本找不到【{clean_city}】这个地方，你是不是字打错了？"
+        if "results" not in geo_resp or len(geo_resp["results"]) == 0:
+            return f"地理盲区啊，根本找不到【{clean_city}】这个地方，你是不是字打错了？"
 
         # location = geo_resp["results"][0]
         # lat = location["latitude"]
         # lon = location["longitude"]
-        # city_name = location.get("name", clean_city)
+        city_name = location.get("name", clean_city)
 
         # # 根据经纬度查询当前实时天气
         # print(f"[Tool Calling] 获取 {city_name} (Lat: {lat}, Lon: {lon}) 的实时天气...")
@@ -86,11 +86,11 @@ def weather_tool(city: str) -> str:
         # else:
         #     return f"{city_name}现在是【{condition}】，气温 {temp}℃。"
 
-        
+        print(f"[Tool Calling] 获取 {city_name} 的实时天气...")
         amap_key=""
         #新的天气api
         url = "https://restapi.amap.com/v3/weather/weatherInfo"
-        params = {"key": amap_key, "city": clean_city, "extensions": "base"}
+        params = {"key": amap_key, "city": city_name, "extensions": "base"}
         GaoDe_weather_resp =requests.get(url, params=params, timeout=5).json()
         
         #新的解析
