@@ -55,36 +55,56 @@ def weather_tool(city: str) -> str:
         clean_city = city.replace("市", "").replace("天气", "").replace("怎么样", "").replace("的", "").strip()
         print(f"[Tool Calling] 正在查询 {clean_city} 的经纬度...")
 
-        # 把城市名转成经纬度
-        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={clean_city}&count=1&language=zh"
-        geo_resp = requests.get(geo_url, timeout=5).json()
+        # # 把城市名转成经纬度
+        # geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={clean_city}&count=1&language=zh"
+        # geo_resp = requests.get(geo_url, timeout=5).json()
 
-        if "results" not in geo_resp or len(geo_resp["results"]) == 0:
-            return f"地理盲区啊，根本找不到【{clean_city}】这个地方，你是不是字打错了？"
+        # if "results" not in geo_resp or len(geo_resp["results"]) == 0:
+        #     return f"地理盲区啊，根本找不到【{clean_city}】这个地方，你是不是字打错了？"
 
-        location = geo_resp["results"][0]
-        lat = location["latitude"]
-        lon = location["longitude"]
-        city_name = location.get("name", clean_city)
+        # location = geo_resp["results"][0]
+        # lat = location["latitude"]
+        # lon = location["longitude"]
+        # city_name = location.get("name", clean_city)
 
-        # 根据经纬度查询当前实时天气
-        print(f"[Tool Calling] 获取 {city_name} (Lat: {lat}, Lon: {lon}) 的实时天气...")
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        weather_resp = requests.get(weather_url, timeout=5).json()
-
-        # 解析天气数据
-        current = weather_resp.get("current_weather", {})
-        temp = current.get("temperature", "未知")
-        weather_code = current.get("weathercode", -1)
+        # # 根据经纬度查询当前实时天气
+        # print(f"[Tool Calling] 获取 {city_name} (Lat: {lat}, Lon: {lon}) 的实时天气...")
+        # weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        # weather_resp = requests.get(weather_url, timeout=5).json()
+        
+        # # 解析天气数据
+        # current = weather_resp.get("current_weather", {})
+        # temp = current.get("temperature", "未知")
+        # weather_code = current.get("weathercode", -1)
 
         # 匹配中文天气描述
-        condition = WEATHER_CODES.get(weather_code, "未知神秘天气")
+        # condition = WEATHER_CODES.get(weather_code, "未知神秘天气")
+        # if temp < 0:
+        #     return f"{city_name}现在是【{condition}】，气温 {temp}℃。记得保暖哦！"
+        # elif temp > 30:
+        #     return f"{city_name}现在是【{condition}】，气温 {temp}℃。出门记得防晒哦！"
+        # else:
+        #     return f"{city_name}现在是【{condition}】，气温 {temp}℃。"
+
+        
+        amap_key=""
+        #新的天气api
+        url = "https://restapi.amap.com/v3/weather/weatherInfo"
+        params = {"key": amap_key, "city": clean_city, "extensions": "base"}
+        GaoDe_weather_resp =requests.get(url, params=params, timeout=5).json()
+        
+        #新的解析
+        current=GaoDe_weather_resp['lives'][0]
+        weather, temp = live['weather'], live['temperature']
+
+        # 新的中文天气描述
         if temp < 0:
-            return f"{city_name}现在是【{condition}】，气温 {temp}℃。记得保暖哦！"
+            return f"{city_name}现在是【{weather}】，气温 {temp}℃。记得保暖哦！"
         elif temp > 30:
-            return f"{city_name}现在是【{condition}】，气温 {temp}℃。出门记得防晒哦！"
+            return f"{city_name}现在是【{weather}】，气温 {temp}℃。出门记得防晒哦！"
         else:
-            return f"{city_name}现在是【{condition}】，气温 {temp}℃。"
+            return f"{city_name}现在是【{weather}】，气温 {temp}℃。"
+        
 
     except requests.exceptions.Timeout:
         return f"666，看不了{clean_city}的天气，气象局API超时卡死了。"
