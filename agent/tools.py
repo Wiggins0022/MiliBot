@@ -1,5 +1,5 @@
 import os
-
+from dotenv import load_dotenv
 from langchain_core.tools import tool
 import requests
 from rag.rag_service import RAGService
@@ -9,6 +9,7 @@ from utils.config_handler import load_tools_config
 
 rag_service = RAGService()
 tools_config = load_tools_config()
+load_dotenv()
 
 @tool(return_direct=True,description="""
 【历史记忆聊天工具 / 核心闲聊工具】
@@ -31,30 +32,55 @@ def chat_with_memory_tool(query: str, sender: str) -> str:
 【天气查询工具】
 当群友询问某个地方的天气时，调用此工具获取真实天气。
 -> 传入参数 (city_name) 必须且只能是纯粹的城市名称，例如：“北京”、“郑州”。
+-> 传入参数 (relative_day) 是用户想要查询的时间，必须且只能从以下四个词中选一个：'今天'、'明天'、'后天'、'大后天'。如果没有明确说明，默认填'今天'。
 """)
-def weather_tool(city_name: str) -> str:
+def weather_tool(city_name: str,relative_day: str) -> str:
     """获取天气信息的工具"""
     try:
 
-        print(f"[Tool Calling] 获取 {city_name} 的实时天气...")
+        print(f"[Tool Calling] 获取 {city_name} {relative_day}的天气...")
         amap_key=os.getenv("WEATHER_API_KEY")
         #新的天气api
         url = tools_config['weather_api_url']
-        params = {"key": amap_key, "city": city_name, "extensions": "base"}
-        GaoDe_weather_resp =requests.get(url, params=params, timeout=5).json()
-        
-        #新的解析
-        live=GaoDe_weather_resp['lives'][0]
-        weather, temp = live['weather'], int(live['temperature'])
 
-        # 新的中文天气描述
-        if temp < 0:
-            return f"{city_name}现在是【{weather}】，气温 {temp}℃。记得保暖哦！"
-        elif temp > 30:
-            return f"{city_name}现在是【{weather}】，气温 {temp}℃。出门记得防晒哦！"
-        else:
+        day_index_map = {"今天": 0, "明天": 1, "后天": 2, "大后天": 3}
+
+        if relative_day not in day_index_map:
+            return f"米粒只能查询'今天'、'明天'、'后天'、'大后天'的天气"
+
+        # 默认查询今天的天气
+        target_index = day_index_map.get(relative_day, 0)
+
+        if target_index == 0:
+            params = {"key": amap_key, "city": city_name, "extensions": "base"}
+            resp = requests.get(url, params=params, timeout=5).json()
+            if not resp.get('lives'):
+                return f"找不到 {city_name} 的天气信息哦。"
+            live = resp['lives'][0]
+            weather, temp = live['weather'], int(live['temperature'])
             return f"{city_name}现在是【{weather}】，气温 {temp}℃。"
-        
+        else:
+            params = {"key": amap_key, "city": city_name, "extensions": "all"}
+            resp = requests.get(url, params=params, timeout=5).json()
+            if not resp.get('forecasts'):
+                return f"找不到 {city_name} 的天气预报哦。"
+
+            casts = resp['forecasts'][0]['casts']
+
+            # 防止高德返回的数据不够4天导致越界
+            if target_index >= len(casts):
+                return f"高德气象局暂时还没有给出{city_name}{relative_day}的预报数据呢。"
+
+            target_cast = casts[target_index]
+            date_str = target_cast['date']
+            day_weather = target_cast['dayweather']
+            night_weather = target_cast['nightweather']
+            day_temp = target_cast['daytemp']
+            night_temp = target_cast['nighttemp']
+
+            return (f"{city_name} {relative_day}（{date_str}）的天气预报：\n"
+                    f"白天【{day_weather}】，夜间【{night_weather}】；\n"
+                    f"全天气温 {night_temp}℃ ~ {day_temp}℃。")
 
     except requests.exceptions.Timeout:
         return f"666，看不了{city_name}的天气，气象局API超时卡死了。"

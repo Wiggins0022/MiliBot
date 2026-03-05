@@ -2,6 +2,9 @@ import os
 from utils.config_handler import load_model_config
 from model.base_model import BaseModel
 from langchain_community.chat_models.tongyi import ChatTongyi
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class ChatModel(BaseModel):
     def __init__(self):

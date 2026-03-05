@@ -26,5 +26,5 @@ class ReactAgent:
                 yield last_messages.content.strip() + "\n"
 
 if __name__ == '__main__':
-    for chunk in ReactAgent().create_stream("北京的天气怎么样？"):
+    for chunk in ReactAgent().create_stream("我三天后要去长春，帮我查询三天后长春的气温"):
         print(chunk, end='', flush=True)
