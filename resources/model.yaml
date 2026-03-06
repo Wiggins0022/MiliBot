@@ -1,2 +1,3 @@
-chat_model_name: qwen3-max
+chat_model_name: qwen3.5-397b-a17b
+default_chat_model_name: qwen3.5-flash
 embedding_model_name: text-embedding-v4

@@ -28,7 +28,7 @@ def chat_with_memory_tool(query: str, sender: str) -> str:
 
 
 
-@tool(args_schema=WeatherInput,return_direct=True, description="""
+@tool(args_schema=WeatherInput,description="""
 【天气查询工具】
 当群友询问某个地方的天气时，调用此工具获取真实天气。
 -> 传入参数 (city_name) 必须且只能是纯粹的城市名称，例如：“北京”、“郑州”。
