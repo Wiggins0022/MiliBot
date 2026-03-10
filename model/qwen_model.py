@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-class QWenModel(BaseModel):
+class QwenModel(BaseModel):
     def __init__(self,model_name):
         super().__init__(model_name)
 

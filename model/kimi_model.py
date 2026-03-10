@@ -1,5 +1,7 @@
 import os
 
+from openai import max_retries
+
 from model.base_model import BaseModel
 from langchain_openai import ChatOpenAI
 
@@ -11,5 +13,6 @@ class KimiModel(BaseModel):
         return ChatOpenAI(
             model=self.model_name,
             openai_api_key=os.getenv("KIMI_API_KEY"),
-            openai_api_base="https://api.moonshot.cn/v1"
+            openai_api_base="https://api.moonshot.cn/v1",
+            max_retries=3
         )

@@ -1,5 +1,5 @@
 from model.base_model import BaseModel
-from model.qwen_model import QWenModel
+from model.qwen_model import QwenModel
 from model.kimi_model import KimiModel
 from model.deepseek_model import DeepSeekModel
 
@@ -11,7 +11,7 @@ class ModelFactory:
 
         # 根据模型名称前缀或关键字来判断使用哪个类
         if "qwen" in model_name_lower:
-            return QWenModel(model_name)
+            return QwenModel(model_name)
         elif "moonshot" in model_name_lower or "kimi" in model_name_lower:
             return KimiModel(model_name)
         elif "deepseek" in model_name_lower:

@@ -1,23 +1,15 @@
-import os
 from utils.config_handler import load_model_config
-from model.base_model import BaseModel
-from langchain_community.chat_models.tongyi import ChatTongyi
-from dotenv import load_dotenv
+from model.model_factory import ModelFactory
 
-load_dotenv()
+model_config = load_model_config()
 
-class ChatModel(BaseModel):
-    def __init__(self):
-        self.model_config = load_model_config()
+# 获取模型名称
+model_name = model_config.get('chat_model_name', model_config['default_chat_model_name'])
 
-    def generator(self):
-        """
-        创建模型实例
-        :return:
-        """
-        return ChatTongyi(
-            model=self.model_config['chat_model_name'],
-            api_key=os.getenv("ALIYUN_API_KEY"),
-        )
+if model_name is None:
+    raise ValueError("模型名称未在配置文件中指定，请检查模型配置。")
 
-chat_model = ChatModel().generator()
+model_wrapper = ModelFactory.create_model(model_name)
+
+# 创建模型实例
+chat_model = model_wrapper.generator()
