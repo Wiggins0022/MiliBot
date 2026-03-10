@@ -1,4 +1,6 @@
 import os
+import sqlite3
+from utils.path_tool import get_abs_path
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 import requests
@@ -6,6 +8,7 @@ from rag.rag_service import RAGService
 from datetime import datetime
 from schema.weather_input import WeatherInput
 from utils.config_handler import load_tools_config
+from utils.logger_handler import logger
 
 rag_service = RAGService()
 tools_config = load_tools_config()
@@ -97,6 +100,53 @@ def get_current_datetime(query: str = "") -> str:
     """获取当前日期和时间的工具"""
     now = datetime.now()
     return f"现在的标准时间是：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+
+
+@tool(description="""
+【状态切换工具】
+当用户要求生成聊天报告、总结自己或他人的QQ聊天记录时，你必须【优先】调用此工具！
+无形参，调用后将触发系统底层逻辑，为你切换到“报告生成专家”的思维模式。
+""")
+def report_tool() -> str:
+    # 这个工具没有实际的业务逻辑，是为了触发中间件，让系统切换到报告生成的上下文环境
+    logger.info("工具 report_tool 被调用，准备触发提示词切换")
+    return "报告生成上下文已注入，你的提示词已切换，现在请调用 fetch_qq_chat_records 获取数据。"
+
+
+@tool(description="从数据库中获取指定QQ用户的聊天记录。必须传入 target_user（群昵称或QQ号）。")
+def fetch_qq_chat_records(target_user: str) -> str:
+    """使用SQLite索QQ聊天记录"""
+    logger.info(f"正在从 SQLite 获取用户 {target_user} 的聊天数据...")
+
+    db_path = get_abs_path("chat_history.db")
+
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        query_sql = """
+            SELECT timestamp, content 
+            FROM messages 
+            WHERE sender_name = ? 
+            ORDER BY timestamp DESC 
+            LIMIT 50
+        """
+        cursor.execute(query_sql, (target_user,))
+        rows = cursor.fetchall()
+
+        if not rows:
+            return f"没有在数据库中找到关于【{target_user}】的聊天记录。"
+
+        # 拼接成文本供大模型阅读
+        chat_content = "\n".join([f"[{row[0]}] {row[1]}" for row in rows])
+        return f"【{target_user}】最近的聊天记录如下：\n{chat_content}"
+
+    except sqlite3.Error as e:
+        logger.error(f"SQLite 数据库查询异常: {e}")
+        return "数据库卡壳了，聊天记录拉取失败。"
+    finally:
+        if 'conn' in locals() and conn:
+            conn.close()
 
 if __name__ == '__main__':
     print(weather_tool.invoke("郑州天气怎么样"))

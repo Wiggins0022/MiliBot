@@ -60,7 +60,7 @@ class HistoryManager:
         if not rows:
             return "暂无近期聊天记录。"
 
-        # rows.reverse()
+        rows.reverse()
 
         history_str = ""
         for role, sender, content in rows:

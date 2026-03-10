@@ -85,3 +85,30 @@ def load_rag_prompt() -> str:
     except Exception as e:
         logger.error(f"【load_rag_prompt】加载RAG提示词失败，发生异常: {e}")
         return ""
+
+def load_report_prompt() -> str:
+    """
+    加载报告生成提示词
+    :return: 报告生成提示词内容字符串，如果加载失败返回空字符串
+    """
+    # 加载配置文件
+    prompt_config = load_prompt_config()
+    # 获取报告生成提示词路径
+    path = get_abs_path(prompt_config['report_prompt_path'])
+
+    if not os.path.exists(path):
+        logger.error(f"【load_report_prompt】加载报告生成提示词失败，文件不存在: {path}")
+        return ""
+
+    if os.path.isdir(path):
+        logger.error(f"【load_report_prompt】加载报告生成提示词失败，路径是一个目录: {path}")
+        return ""
+
+    try:
+        with open(path,'r',encoding='utf-8') as f:
+            report_prompt = f.read()
+            logger.info(f"【load_report_prompt】成功加载报告生成提示词: {path}")
+            return report_prompt
+    except Exception as e:
+        logger.error(f"【load_report_prompt】加载报告生成提示词失败，发生异常: {e}")
+        return ""

@@ -1,6 +1,5 @@
 import os
 
-from openai import max_retries
 
 from model.base_model import BaseModel
 from langchain_openai import ChatOpenAI
